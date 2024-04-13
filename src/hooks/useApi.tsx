@@ -28,10 +28,8 @@ export interface DetailsResult {
 }
 
 export const useApi = () => {
-  // let url = process.env.VITE_SITE_URL;
-  let url = "https://www.omdbapi.com/";
-  // let apiKey = process.env.VITE_SITE_API_KEY;
-  let apiKey = "2be398c0";
+  let url = import.meta.env.VITE_SITE_URL as string;
+  let apiKey = import.meta.env.VITE_SITE_API_KEY as string;
 
   const searchData = async (
     title: string,
