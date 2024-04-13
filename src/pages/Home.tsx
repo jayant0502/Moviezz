@@ -1,17 +1,83 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import ExploreContainer from '../components/ExploreContainer';
-import './Home.css';
+import {
+  IonContent,
+  IonHeader,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonPage,
+  IonSearchbar,
+  IonSelect,
+  IonSelectOption,
+  IonTitle,
+  IonToolbar,
+  useIonAlert,
+  useIonLoading,
+} from "@ionic/react";
+import "./Home.css";
+import useApi, { SearchError, SearchResult, SearchType } from "../hooks/useApi";
+import { useEffect, useState } from "react";
 
 const Home: React.FC = () => {
+  const { searchData, getDetails } = useApi();
+  const [searchTerm, setSearchTerm] = useState<any>("");
+  const [type, setType] = useState<SearchType>(SearchType.all);
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [error, setError] = useState<SearchError[]>([]);
+  const [presentAlert] = useIonAlert()
+  const [loading , dismiss]=useIonLoading()
+
+  useEffect(() => {
+    if (searchTerm == "") {
+      return;
+    }
+
+    const data = async () => {
+      try {
+        await loading()
+        const res: any = await searchData(searchTerm, type);
+        await dismiss()
+        if (res?.Error) {
+         presentAlert(res?.Error)
+        } else {
+          setResults(res.Search);
+        }
+      } catch (err) {
+        console.log("Error", err);
+      }
+    };
+    data();
+  }, [searchTerm]);
+
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
-          <IonTitle>Blank</IonTitle>
+        <IonToolbar color={"primary"}>
+          <IonTitle>Moviezz</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-       Home Page
+        <IonSearchbar
+          value={searchTerm}
+          debounce={300}
+          onIonChange={(e) => setSearchTerm(e.detail.value)}
+        ></IonSearchbar>
+        <IonItem>
+          <IonLabel>Search Type</IonLabel>
+          <IonSelect value={type} onIonChange={(e) => setType(e.detail.value)}>
+            <IonSelectOption value={""}>All</IonSelectOption>
+            <IonSelectOption value={"movie"}>Movie</IonSelectOption>
+            <IonSelectOption value={"series"}>Series</IonSelectOption>
+            <IonSelectOption value={"episode"}>Episode </IonSelectOption>
+          </IonSelect>
+        </IonItem>
+
+        <IonList>
+          {results.map((item: SearchResult) => (
+            <IonItem key={item.imdbID}>
+              <IonLabel>{item.Title}</IonLabel>
+            </IonItem>
+          ))}
+        </IonList>
       </IonContent>
     </IonPage>
   );
