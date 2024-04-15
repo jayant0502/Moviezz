@@ -10,6 +10,7 @@ export interface SearchResult {
   Year: string;
   Poster: string;
   imdbID: string;
+  Type: string;
 }
 export interface SearchError {
   Response: string;
@@ -25,6 +26,7 @@ export interface DetailsResult {
   Actors: string;
   Website: string;
   Plot: string;
+  Awards: string
 }
 
 export const useApi = () => {

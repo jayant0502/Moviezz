@@ -1,6 +1,9 @@
 import {
+  IonAvatar,
   IonContent,
   IonHeader,
+  IonIcon,
+  IonImg,
   IonItem,
   IonLabel,
   IonList,
@@ -16,6 +19,11 @@ import {
 import "./Home.css";
 import useApi, { SearchError, SearchResult, SearchType } from "../hooks/useApi";
 import { useEffect, useState } from "react";
+import {
+  videocamOutline,
+  tvOutline,
+  gameControllerOutline,
+} from "ionicons/icons";
 
 const Home: React.FC = () => {
   const { searchData, getDetails } = useApi();
@@ -23,8 +31,8 @@ const Home: React.FC = () => {
   const [type, setType] = useState<SearchType>(SearchType.all);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [error, setError] = useState<SearchError[]>([]);
-  const [presentAlert] = useIonAlert()
-  const [loading , dismiss]=useIonLoading()
+  const [presentAlert] = useIonAlert();
+  const [loading, dismiss] = useIonLoading();
 
   useEffect(() => {
     if (searchTerm == "") {
@@ -33,11 +41,11 @@ const Home: React.FC = () => {
 
     const data = async () => {
       try {
-        await loading()
+        await loading();
         const res: any = await searchData(searchTerm, type);
-        await dismiss()
+        await dismiss();
         if (res?.Error) {
-         presentAlert(res?.Error)
+          presentAlert(res?.Error);
         } else {
           setResults(res.Search);
         }
@@ -46,7 +54,7 @@ const Home: React.FC = () => {
       }
     };
     data();
-  }, [searchTerm]);
+  }, [searchTerm , type]);
 
   return (
     <IonPage>
@@ -59,7 +67,7 @@ const Home: React.FC = () => {
         <IonSearchbar
           value={searchTerm}
           debounce={300}
-          onIonChange={(e) => setSearchTerm(e.detail.value)}
+          onIonChange={(e) => setSearchTerm(e.detail.value?.trim())}
         ></IonSearchbar>
         <IonItem>
           <IonLabel>Search Type</IonLabel>
@@ -73,8 +81,21 @@ const Home: React.FC = () => {
 
         <IonList>
           {results.map((item: SearchResult) => (
-            <IonItem key={item.imdbID}>
-              <IonLabel>{item.Title}</IonLabel>
+            <IonItem button key={item.imdbID} routerLink={`/movies/${item.imdbID}`}>
+              <IonAvatar slot="start">
+                <IonImg src={item.Poster} />
+              </IonAvatar>
+              <IonLabel className="ion-text-wrap">{item.Title}</IonLabel>
+
+              {item.Type === "movie" && (
+                <IonIcon slot="end" src={videocamOutline}></IonIcon>
+              )}
+              {item.Type == "series" && (
+                <IonIcon slot="end" src={tvOutline}></IonIcon>
+              )}
+              {item.Type == "game" && (
+                <IonIcon slot="end" src={gameControllerOutline}></IonIcon>
+              )}
             </IonItem>
           ))}
         </IonList>
