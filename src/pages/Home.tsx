@@ -17,26 +17,42 @@ import {
   useIonLoading,
 } from "@ionic/react";
 import "./Home.css";
-import useApi, { SearchError, SearchResult, SearchType } from "../hooks/useApi";
+import useApi, { SearchError, SearchResult, SearchType , AllData} from "../hooks/useApi";
 import { useEffect, useState } from "react";
 import {
   videocamOutline,
   tvOutline,
   gameControllerOutline,
 } from "ionicons/icons";
+import MovieLists from "../components/MovieLists";
 
 const Home: React.FC = () => {
-  const { searchData, getDetails } = useApi();
+  const { searchData,getALLDATA } = useApi();
   const [searchTerm, setSearchTerm] = useState<any>("");
   const [type, setType] = useState<SearchType>(SearchType.all);
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [movies,setMovies]= useState<AllData[]>([]);
   const [error, setError] = useState<SearchError[]>([]);
   const [presentAlert] = useIonAlert();
   const [loading, dismiss] = useIonLoading();
 
   useEffect(() => {
-    if (searchTerm == "") {
-      return;
+
+    const allMovies = async ()=>{
+      try{
+        // await loading();
+        const res: any = await getALLDATA()
+        // !res && await dismiss()
+        setMovies(res?.results)
+
+        console.log("movies data",res)
+
+        
+      }
+      catch(error){
+        console.log("Error: " + error);
+      }
+
     }
 
     const data = async () => {
@@ -53,7 +69,16 @@ const Home: React.FC = () => {
         console.log("Error", err);
       }
     };
-    data();
+
+
+    if (searchTerm == "") {
+      allMovies();
+    }
+    else{
+      data();
+
+    }  
+   
   }, [searchTerm , type]);
 
   return (
@@ -79,7 +104,7 @@ const Home: React.FC = () => {
           </IonSelect>
         </IonItem>
 
-        <IonList>
+        {searchTerm !== "" && <IonList>
           {results.map((item: SearchResult) => (
             <IonItem button key={item.imdbID} routerLink={`/movies/${item.imdbID}`}>
               <IonAvatar slot="start">
@@ -98,7 +123,10 @@ const Home: React.FC = () => {
               )}
             </IonItem>
           ))}
-        </IonList>
+        </IonList>}
+        {
+          searchTerm === '' && <MovieLists movieData={movies}></MovieLists>
+        }
       </IonContent>
     </IonPage>
   );
