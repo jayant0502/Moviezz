@@ -1,8 +1,7 @@
 export enum SearchType {
-  all = "",
+  all = "multi",
   movie = "movie",
-  series = "series",
-  episode = "episode",
+  series = "tv",
 }
 
 export interface SearchResult {
@@ -46,29 +45,45 @@ export interface AllData {
   vote_count: number;
 }
 
+export interface MovieSearchOptions {
+  query: string;
+  includeAdult?: boolean;
+  language?: string;
+  primaryReleaseYear?: number;
+  page?: number;
+  region?: string;
+  year?: number;
+}
 
 export const useApi = () => {
   let url = import.meta.env.VITE_SITE_URL as string;
   let apiKey = import.meta.env.VITE_SITE_API_KEY as string;
+  let authKey = import.meta.env.VITE_SITE_AUTH_KEY;
   const options = {
-    method: 'GET',
+    method: "GET",
     headers: {
-      accept: 'application/json',
-      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyZTUwMTU1OWQ3YjcwYWMwODcyZTdkOTFkYWIyYTQxMyIsInN1YiI6IjY2MjBiOTc2MDIzMWYyMDE3YzExODBjMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Xp1n8syySKwkh7DP7of2btjBxNchWWPzEaTtXZ2ZqAc'
-    }
+      accept: "application/json",
+      Authorization: `Bearer ${authKey}`,
+    },
   };
 
   const getALLDATA = async (): Promise<AllData> => {
-    const res = await fetch('https://api.themoviedb.org/3/trending/all/day?language=en-US',options);
+    const res = await fetch(`${url}trending/all/day?language=en-US`, options);
     return res.json();
   };
 
   const searchData = async (
-    title: string,
+    query: string,
+    includeAdult: boolean,
+    language: string,
+    primaryReleaseYear: number,
+    page: number,
+    region: string,
+    year: number,
     type: SearchType
-  ): Promise<SearchResult[] | SearchError> => {
+  ): Promise<MovieSearchOptions[] | SearchError> => {
     const res = await fetch(
-      `${url}?s=${encodeURI(title)}&type=${type}&apiKey=${apiKey}`
+      `${url}/search/${type}?query=${query}&include_adult=${includeAdult}&language=${language}&page=${page}&region=${region}`
     );
     return res.json();
   };

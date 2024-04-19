@@ -1,27 +1,35 @@
-.movie-list-container {
-  padding: 20px;
-}
-
 .movie-card {
-  margin-bottom: 20px;
-  border-radius: 10px;
+  border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 4px;
 }
-
+.card-header{
+  padding: 10px 5px 5px 5px;
+  text-align: start;
+}
+.card-header ion-card-title{
+  font-size: 1rem;
+  white-space: nowrap;   
+  overflow: hidden;        /* Hide overflowing text */
+  text-overflow: ellipsis;
+}
+.card-content{
+  padding: 5px ;
+  /* display: flex; */
+  justify-content: space-between;
+  width: 100%;
+}
 .poster-img {
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
 }
-
-
-
-.card-content {
+.type{
   display: flex;
+  align-items: center ;
+  padding: 0;
 }
-.card-content IonCardSubtitle{
-  padding: 12px;
-  margin: 20px;
+.card-content .detail-list {
+  justify-content: space-between !important;
 }
-
 
 /* Add more styles as needed */
