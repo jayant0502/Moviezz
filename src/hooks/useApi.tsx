@@ -3,13 +3,14 @@ export enum SearchType {
   movie = "movie",
   series = "tv",
 }
-
 export interface SearchResult {
-  Title: string;
-  Year: string;
-  Poster: string;
-  imdbID: string;
-  Type: string;
+  
+  id: number; 
+  poster_path: string; 
+  title: string;
+  media_type: string;
+  name: string;
+  
 }
 export interface SearchError {
   Response: string;
@@ -57,8 +58,9 @@ export interface MovieSearchOptions {
 
 export const useApi = () => {
   let url = import.meta.env.VITE_SITE_URL as string;
-  let apiKey = import.meta.env.VITE_SITE_API_KEY as string;
+  // let apiKey = import.meta.env.VITE_SITE_API_KEY as string;
   let authKey = import.meta.env.VITE_SITE_AUTH_KEY;
+
   const options = {
     method: "GET",
     headers: {
@@ -74,23 +76,53 @@ export const useApi = () => {
 
   const searchData = async (
     query: string,
-    includeAdult: boolean,
-    language: string,
-    primaryReleaseYear: number,
-    page: number,
-    region: string,
-    year: number,
-    type: SearchType
+    type: SearchType,
+    includeAdult?: boolean,
+    language?: string,
+    primaryReleaseYear?: number,
+    page?: number | 1,
+    region?: string,
+    year?: number
   ): Promise<MovieSearchOptions[] | SearchError> => {
-    const res = await fetch(
-      `${url}/search/${type}?query=${query}&include_adult=${includeAdult}&language=${language}&page=${page}&region=${region}`
-    );
-    return res.json();
+    let res;
+
+    if (query && type) {
+      res = await fetch(
+        `${url}/search/${type}?query=${query}`,
+        options
+      );
+    }
+    if (query && type && includeAdult) {
+      res = await fetch(
+        `${url}/search/${type}?query=${query}&include_adult=${includeAdult}`,
+        options
+      );
+    }
+    if (query && type && includeAdult && language) {
+      res = await fetch(
+        `${url}/search/${type}?query=${query}&include_adult=${includeAdult!}&language=${language}`,
+        options
+      );
+    }
+    if (query && type && includeAdult && language && page) {
+      res = await fetch(
+        `${url}/search/${type}?query=${query}&include_adult=${includeAdult!}&language=${language}&page=${1}`,
+        options
+      );
+    }
+    if (query && type && includeAdult && language && page && region) {
+      res = await fetch(
+        `${url}/search/${type}?query=${query}&include_adult=${includeAdult!}&language=${language}&page=${1}&region=${region}`,
+        options
+      );
+    }
+    return res?.json();
   };
 
   const getDetails = async (id: string): Promise<DetailsResult> => {
-    const res = await fetch(`${url}?i=${id}&plot=full&apikey=${apiKey}`);
 
+
+    const res = await fetch(`${url}/${id}`,options);
     return res.json();
   };
 

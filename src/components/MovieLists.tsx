@@ -15,7 +15,13 @@ import {
 import { starHalfOutline, tvOutline, videocamOutline } from "ionicons/icons";
 import "./MovieLists.css";
 import { Swiper, SwiperSlide } from "swiper/react";
-
+import {
+  Autoplay,
+  Keyboard,
+  Pagination,
+  Scrollbar,
+  Zoom,
+} from "swiper/modules";
 import "swiper/css";
 import "swiper/css/autoplay";
 import "swiper/css/keyboard";
@@ -28,16 +34,18 @@ interface MovieListsProp {
   movieData: any[];
 }
 
-const baseUrl = "https://image.tmdb.org/t/p/original";
+export const baseUrl = "https://image.tmdb.org/t/p/original";
 
 const MovieLists: React.FC<MovieListsProp> = ({ movieData }) => {
   return (
     <div className="movie-list-container">
-      <IonTitle className="ion-padding">Trending</IonTitle>
+      <IonTitle className="ion-padding" >Trending</IonTitle>
 
       <Swiper
+        modules={[Autoplay, Keyboard, Pagination, Scrollbar, Zoom]}
         slidesPerView={3}
         autoplay={true}
+        loop={true}
         keyboard={true}
         pagination={true}
         scrollbar={true}
@@ -54,6 +62,9 @@ const MovieLists: React.FC<MovieListsProp> = ({ movieData }) => {
             release_date,
             first_air_date,
             vote_average,
+
+
+            
           }) => (
             <SwiperSlide>
               <IonCard className="movie-card">

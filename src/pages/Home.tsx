@@ -1,21 +1,17 @@
 import {
-  IonAvatar,
   IonCol,
   IonContent,
   IonGrid,
   IonHeader,
-  IonIcon,
   IonImg,
   IonItem,
   IonLabel,
-  IonList,
   IonPage,
   IonRow,
   IonSearchbar,
   IonSelect,
   IonSelectOption,
   IonText,
-  IonTitle,
   IonToolbar,
   useIonAlert,
   useIonLoading,
@@ -28,13 +24,9 @@ import useApi, {
   AllData,
 } from "../hooks/useApi";
 import { useEffect, useState } from "react";
-import {
-  videocamOutline,
-  tvOutline,
-  gameControllerOutline,
-} from "ionicons/icons";
 import MovieLists from "../components/MovieLists";
 import logo from "../assests/logo/logo.png";
+import SearchResultsModal from "../components/SearchResultsModal";
 
 const Home: React.FC = () => {
   const { searchData, getALLDATA } = useApi();
@@ -45,41 +37,71 @@ const Home: React.FC = () => {
   const [error, setError] = useState<SearchError[]>([]);
   const [presentAlert] = useIonAlert();
   const [loading, dismiss] = useIonLoading();
+  const [isOpen, setIsOpen] = useState<boolean>(true);
 
+  // useEffect(() => {
+  //   const allMovies = async () => {
+  //     try {
+  //       // await loading();
+  //       const res: any = await getALLDATA();
+  //       // await dismiss()
+  //       setMovies(res?.results);
+
+  //       console.log("movies data", res);
+  //     } catch (error) {
+  //       console.log("Error: " + error);
+  //     }
+  //   };
+
+  //   const data = async () => {
+  //     try {
+  //       await loading();
+  //       const res: any = await searchData(searchTerm, type);
+  //       await dismiss();
+  //       if (res?.results.length === 0 && res?.total_results === 0) {
+  //         presentAlert("No movies found");
+  //         setSearchTerm("");
+  //       } else {
+  //         setResults(res.Search);
+  //       }
+  //     } catch (err) {
+  //       console.log("Error", err);
+  //     }
+  //   };
+
+  //   if (searchTerm !== "") {
+  //     data();
+  //   }else{
+  //     allMovies();
+
+  //   }
+  // }, [searchTerm, type]);
   useEffect(() => {
-    const allMovies = async () => {
+    const fetchData = async () => {
       try {
-        // await loading();
-        const res: any = await getALLDATA();
-        // !res && await dismiss()
-        setMovies(res?.results);
-
-        console.log("movies data", res);
+        if (searchTerm !== "") {
+          await loading()
+          const res: any = await searchData(searchTerm, type);
+          await dismiss()
+          if (res?.results.length === 0 && res?.total_results === 0) {
+            presentAlert("No movies found");
+            setSearchTerm("");
+          } else {
+            setResults(res.results);
+            console.log(res.results)
+            setIsOpen(true); // Open the modal when search results are available
+          }
+        } else {
+          const res: any = await getALLDATA();
+          setMovies(res?.results);
+          setIsOpen(true); // Open the modal when all movies are loaded
+        }
       } catch (error) {
         console.log("Error: " + error);
       }
     };
 
-    const data = async () => {
-      try {
-        await loading();
-        const res: any = await searchData(searchTerm, type);
-        await dismiss();
-        if (res?.Error) {
-          presentAlert(res?.Error);
-        } else {
-          setResults(res.Search);
-        }
-      } catch (err) {
-        console.log("Error", err);
-      }
-    };
-
-    if (searchTerm == "") {
-      allMovies();
-    } else {
-      data();
-    }
+    fetchData();
   }, [searchTerm, type]);
 
   return (
@@ -103,9 +125,7 @@ const Home: React.FC = () => {
                   color={"light"}
                   mode="md"
                   className="ion-padding searchbar"
-                  onIonChange={(e) =>
-                    setSearchTerm(e.detail.value?.trim() || "")
-                  }
+                  onIonChange={(e) => setSearchTerm(e.detail.value?.trim())}
                 />
               </IonCol>
             </IonRow>
@@ -123,30 +143,13 @@ const Home: React.FC = () => {
         </IonItem>
 
         {searchTerm !== "" && (
-          <IonList>
-            {results.map((item: SearchResult) => (
-              <IonItem
-                button
-                key={item.imdbID}
-                routerLink={`/movies/${item.imdbID}`}
-              >
-                <IonAvatar slot="start">
-                  <IonImg src={item.Poster} />
-                </IonAvatar>
-                <IonLabel className="ion-text-wrap">{item.Title}</IonLabel>
-
-                {item.Type === "movie" && (
-                  <IonIcon slot="end" src={videocamOutline}></IonIcon>
-                )}
-                {item.Type == "series" && (
-                  <IonIcon slot="end" src={tvOutline}></IonIcon>
-                )}
-                {item.Type == "game" && (
-                  <IonIcon slot="end" src={gameControllerOutline}></IonIcon>
-                )}
-              </IonItem>
-            ))}
-          </IonList>
+          <SearchResultsModal
+            isOpen={isOpen}
+            onClose={() => {
+              setSearchTerm(""), setIsOpen(false);
+            }}
+            results={results}
+          />
         )}
         {searchTerm === "" && <MovieLists movieData={movies}></MovieLists>}
       </IonContent>
