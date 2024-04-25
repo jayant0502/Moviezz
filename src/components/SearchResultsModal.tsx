@@ -46,11 +46,12 @@ const SearchResultsModal: React.FC<SearchResultsModalProps> = ({
               button
               key={id}
               onClick={() => onClose()}
-              
+
               routerLink={`/movies/${id}`}
             >
               <IonAvatar slot="start">
                 <IonImg src={baseUrl + poster_path} />
+                
               </IonAvatar>
               <IonLabel className="ion-text-wrap">{media_type === "movie" ? title : name}</IonLabel>
 
