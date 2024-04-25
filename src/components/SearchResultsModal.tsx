@@ -46,6 +46,7 @@ const SearchResultsModal: React.FC<SearchResultsModalProps> = ({
               button
               key={id}
               onClick={() => onClose()}
+              
               routerLink={`/movies/${id}`}
             >
               <IonAvatar slot="start">
